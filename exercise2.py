@@ -8,14 +8,20 @@ class PingPongAgent(mango.Agent):
         self.partner_addr = None
 
     def handle_message(self, content, meta):
-        self.message_count += 1
-        print(f"[{self.addr}] Received: '{content}' (total: {self.message_count})")
+        
+        print(f"[{self.addr}] Received: '{content}'")
 
         # Send message to partner until counter reaches 10
         if self.message_count < 10 and self.partner_addr:
-            response = f"Ping #{self.message_count}"
+            if 'ping' in content.lower():
+                response = "Pong!"
+            else:
+                response = "Ping!"
+            
             self.schedule_instant_message(response, self.partner_addr)
-            print(f"[{self.addr}] Sent: '{response}'")
+            self.message_count += 1
+            print(f"[{self.addr}] Sent: '{response}' {self.message_count}")
+            #print(f"[{self.addr}] Sent: '{response}'")
 
 async def main():
     # Create container
@@ -38,8 +44,7 @@ async def main():
     # Activate container and start communication
     async with mango.activate(container):
         # Start BOTH agents with initial messages
-        await container.send_message("Start ping-pong!", agent1.addr)
-        await container.send_message("Start ping-pong!", agent2.addr)
+        await agent1.send_message("Start ping!", agent2.addr)
         await asyncio.sleep(2)  # Wait for communication to complete
     
     print(f"Final counts - Agent1: {agent1.message_count}, Agent2: {agent2.message_count}")
