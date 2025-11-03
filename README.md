@@ -163,5 +163,5 @@ In the lecture, you learned about the PEAS (performance metric, environment, act
 **👤 Author**
 
 Emeka Great Chimezie
-M.Sc. Digitalised Energy Systems (in progress)
-University of Oldenburg
+- M.Sc. Digitalised Energy Systems
+- University of Oldenburg
