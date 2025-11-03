@@ -90,23 +90,15 @@ async def main():
         # Test reflexive agent
         print("--- Testing Reflexive Agent ---")
         await container.send_message("It's hot here!", reflex_agent.addr)
-        await asyncio.sleep(0.3)
         await container.send_message("Turn on the light", reflex_agent.addr)
-        await asyncio.sleep(0.3)
         await container.send_message("Close the door", reflex_agent.addr)
-        await asyncio.sleep(0.3)
         await container.send_message("Random message", reflex_agent.addr)
-        
-        await asyncio.sleep(1)
         
         # Test deliberative agent
         print("\n--- Testing Deliberative Agent ---")
         await container.send_message({"temperature": 25}, deliberative_agent.addr)
-        await asyncio.sleep(0.3)
         await container.send_message({"temperature": 26}, deliberative_agent.addr)
-        await asyncio.sleep(0.3)
         await container.send_message({"temperature": 27}, deliberative_agent.addr)
-        await asyncio.sleep(0.3)
         await container.send_message("get_stats", deliberative_agent.addr)
         
         await asyncio.sleep(1)
