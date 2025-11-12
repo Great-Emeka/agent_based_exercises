@@ -19,9 +19,18 @@ No, they don't necessarily contain the same IDs. The neighborhood contains only 
 
 ### Exercise 7
 **Answer:**
-- To make all agents know the IDs of all other agents in the system, we would need to:
-- Change the topology agent to send the complete list of all agent addresses to every agent, not just their local neighbors
-- Implement a broadcast mechanism where each agent shares its ID with all other agents directly
+To make all agents know the IDs of all other agents in the system, we would need to:
+- Change the topology agent to send the complete list of all agent addresses to every agent, not just their local neighbors.
+- Implement a broadcast mechanism where each agent shares its ID with all other agents directly.
 - Or use a centralized directory where one agent maintains a complete registry and others can query it.
 *Hence, we can modify the topology distribution to include all agent addresses in the topology message sent to each agent.*
+
+
+
+### Exercise 9
+**Answer:**
+QueenAgent Strategy: Each queen agent controls one column and communicates with others to find non-attacking positions through constraint propagation and backtracking.
+
+**Task Environment:**
+Fully observable, deterministic, multi-agent, sequential, static, discrete, known
 
