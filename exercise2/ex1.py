@@ -1,78 +1,64 @@
 import asyncio
 import mango
 
-class RingAgent(mango.Agent):
-    def __init__(self, agent_id):
+class SimpleAgent(mango.Agent):
+    def __init__(self):
         super().__init__()
-        self.agent_id = agent_id
-        self.received_greetings = []
-        self.expected_greetings = 2  # Each agent should receive 2 greetings
+        self.known_ids = set()
+        self.my_id = None
 
     def handle_message(self, content, meta):
-        if content == "greeting":
-            sender_id = meta['sender_id']
-            self.received_greetings.append(sender_id)
-            print(f"Agent {self.agent_id} received from Agent {sender_id}")
+        if content == "your_id":
+            self.my_id = meta['sender_id']
+            
+        elif content == "neighbor_info":
+            neighbor_id = meta['sender_id']
+            self.known_ids.add(neighbor_id)
 
 async def main():
     container = mango.create_tcp_container(('127.0.0.1', 5555))
     
-    # Create exactly 5 agents as required
-    agents = [RingAgent(i) for i in range(5)]
+    # Create 10 agents
+    agents = [SimpleAgent() for _ in range(10)]
     for agent in agents:
         container.register(agent)
     
-    # Set up proper ring topology: 0-1-2-3-4-0
-    for i in range(5):
-        left_neighbor = agents[(i - 1) % 5]
-        right_neighbor = agents[(i + 1) % 5]
-        agents[i].neighbors = [left_neighbor.addr, right_neighbor.addr]
-    
-    # Create completion event
-    completion_event = asyncio.Event()
-    
-    print("Starting 5-agent ring topology...")
+    print("Exercise 4: Small World Topology (k=2)")
     
     async with mango.activate(container):
-        # Each agent sends ONE greeting to EACH neighbor (2 greetings per agent)
-        messages_sent = 0
-        for agent in agents:
-            for neighbor_addr in agent.neighbors:
-                await container.send_message("greeting", neighbor_addr, sender_id=agent.agent_id)
-                messages_sent += 1
-                print(f"Agent {agent.agent_id} sent greeting to neighbor")
+        # Step 1: Assign IDs to all agents
+        for i, agent in enumerate(agents):
+            await container.send_message("your_id", agent.addr, sender_id=i)
         
-        print(f"Total messages sent: {messages_sent}")
+        await asyncio.sleep(0.5)
         
-        # Monitor completion using asyncio.Event
-        async def check_completion():
-            while True:
-                total_received = sum(len(agent.received_greetings) for agent in agents)
-                print(f"Progress: {total_received}/10 greetings received")
-                
-                if total_received >= 10:
-                    completion_event.set()
-                    break
-                await asyncio.sleep(0.1)
+        # Step 2: Create Small World topology with k=2
+        # Each agent connects to 2 neighbors on each side (total 4 connections)
+        n = len(agents)
+        for i in range(n):
+            # Connect to neighbors within distance 2
+            for offset in [-2, -1, 1, 2]:
+                neighbor_idx = (i + offset) % n
+                # Agent i informs this neighbor
+                await container.send_message("neighbor_info", agents[neighbor_idx].addr, sender_id=i)
         
-        # Start monitoring task
-        monitor_task = asyncio.create_task(check_completion())
+        await asyncio.sleep(1)
         
-        # Wait for completion event
-        print("Waiting for all greetings to be received...")
-        await completion_event.wait()
-        monitor_task.cancel()
+        # Results
+        print("\n=== Small World Topology Results ===")
+        print("Each agent should know 4 neighbors (k=2 on each side)")
         
-        print("✓ All 10 greetings received! System terminating.")
+        total_connections = 0
+        for i, agent in enumerate(agents):
+            total_connections += len(agent.known_ids)
+            expected_neighbors = [
+                (i-2) % n, (i-1) % n,  # left side
+                (i+1) % n, (i+2) % n   # right side
+            ]
+            print(f"Agent {i}: knows {len(agent.known_ids)} IDs -> {sorted(agent.known_ids)}")
+            print(f"        Expected: {sorted(expected_neighbors)}")
         
-        # Verify results
-        print("\n=== Final Results ===")
-        total_received = 0
-        for agent in agents:
-            total_received += len(agent.received_greetings)
-            print(f"Agent {agent.agent_id}: received from {sorted(agent.received_greetings)}")
-        
-        print(f"Total greetings received: {total_received}/10")
+        print(f"\nTotal connections: {total_connections} (should be {n * 4})")
 
 if __name__ == "__main__":
     asyncio.run(main())
