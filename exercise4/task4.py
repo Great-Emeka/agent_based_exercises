@@ -1,6 +1,6 @@
 class PlantAgent:
     """Power plant agent with private parameters."""
-    
+
     def __init__(self, plant_id: int, capacity: float, cost: float):
         self.plant_id = plant_id
         self.capacity = capacity  # PRIVATE

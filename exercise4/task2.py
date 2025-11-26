@@ -1,27 +1,11 @@
-"""
-Exercise 2: Economic Dispatch with Pyomo
-Solves the linear optimization problem for power plant and battery scheduling.
-"""
-
 import pyomo.environ as pyo
 
-
 def solve_economic_dispatch():
-    """
-    Solve economic dispatch problem using Pyomo.
-    
-    Returns:
-        dict: Solution containing schedules and total cost
-    """
-    
-    # ========================================================================
-    # STEP 1: CREATE MODEL
-    # ========================================================================
+    # FIRSTLY, We CREATE MODEL
     model = pyo.ConcreteModel(name="Economic_Dispatch")
     
     # ========================================================================
-    # STEP 2: DEFINE PARAMETERS (Input Data)
-    # ========================================================================
+    # Defining all PARAMETERS (Input Data)
     
     # Time configuration
     num_timesteps = 8
@@ -58,7 +42,7 @@ def solve_economic_dispatch():
                             within=pyo.NonNegativeReals)
     
     # ========================================================================
-    # STEP 3: DEFINE DECISION VARIABLES
+    # DEFINING DECISION VARIABLES
     # ========================================================================
     
     # Power plant generation (MW)
@@ -78,7 +62,7 @@ def solve_economic_dispatch():
                        doc="Battery state of charge")
     
     # ========================================================================
-    # STEP 4: DEFINE CONSTRAINTS
+    # DEFINING CONSTRAINTS
     # ========================================================================
     
     # Constraint 1: Power Balance (Demand Matching)
@@ -149,7 +133,7 @@ def solve_economic_dispatch():
     model.SoCMax = pyo.Constraint(model.T, rule=soc_max_rule)
     
     # ========================================================================
-    # STEP 5: DEFINE OBJECTIVE FUNCTION
+    # DEFINING OBJECTIVE FUNCTION
     # ========================================================================
     
     def total_cost_rule(m):
@@ -171,7 +155,7 @@ def solve_economic_dispatch():
                                    doc="Minimize operational cost")
     
     # ========================================================================
-    # STEP 6: SOLVE THE OPTIMIZATION PROBLEM
+    # SOLVING THE OPTIMIZATION PROBLEM
     # ========================================================================
     
     print("="*70)
@@ -195,7 +179,7 @@ def solve_economic_dispatch():
         print(f"Termination Condition: {result.solver.termination_condition}")
     
     # ========================================================================
-    # STEP 7: EXTRACT AND DISPLAY RESULTS
+    # EXTRACTING AND DISPLAYING RESULTS
     # ========================================================================
     
     print("\n" + "="*70)
@@ -242,7 +226,7 @@ def solve_economic_dispatch():
         print("\n❌ WARNING: Some time steps not balanced!")
     
     # ========================================================================
-    # STEP 8: RETURN SOLUTION
+    # RETURNING SOLUTION
     # ========================================================================
     
     solution = {
